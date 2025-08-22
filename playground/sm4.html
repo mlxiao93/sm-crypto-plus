@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sm4 sm-crypto-plus</title>
+  <script src="../dist/index.umd.js"></script>
+</head>
+<body>
+<script>
+console.log('~~~~~~~~~~~~~~~~~sm4~~~~~~~~~~');
+sm4 = SMCryptoPro.sm4
+plaintext = 'hello world! 我是 xiaomaolin.';
+key = '0123456789abcdeffedcba9876543210';
+iv = 'fedcba98765432100123456789abcdef';
+console.log(sm4.encrypt(plaintext, key, { mode: 'cbc', iv: iv, output: 'base64' }));
+console.log(sm4.encrypt(plaintext, key));
+console.log(sm4.decrypt('DWz6c8gjsqwNapLFZBcYksB33VUs42uFntKIC1qWSY8=', key, { mode: 'cbc', iv: iv }));
+console.log(sm4.decrypt('0E395DEB10F6E8A17E17823E1FD9BD98C71F4A651E34BA279ED3238BE3FDEFA4', key));
+</script>
+</body>
+</html>

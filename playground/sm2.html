@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sm2 sm-crypto-plus</title>
+  <script src="../dist/index.umd.js"></script>
+</head>
+<body>
+<script>
+  console.log('~~~~~~~~~~~~~~~~~sm2~~~~~~~~~~');
+  sm2 = SMCryptoPro.sm2
+  hexToBase64 = SMCryptoPro.hexToBase64
+  toHex = SMCryptoPro.toHex
+  keypair = sm2.generateKeyPairHex()
+
+
+  publicKey = keypair.publicKey // 公钥
+  privateKey = keypair.privateKey // 私钥
+
+  console.log('公钥 hex: ', publicKey);
+  console.log('公钥 base64: ', hexToBase64(publicKey));
+  console.log('私钥 hex: ', privateKey);
+  console.log('私钥 base64: ', hexToBase64(privateKey));
+
+
+  console.log('验证公钥: ', sm2.verifyPublicKey(toHex(publicKey))); // 验证公钥
+
+  cipherMode = 'c1c3c2';
+
+  encryptData = sm2.doEncrypt("hello world! 我是 xiaomaolin.", publicKey, {mode: cipherMode}) // 加密结果
+  const encryptDataBase64 = sm2.doEncrypt("hello world! 我是 xiaomaolin.", publicKey, {
+    mode: cipherMode,
+    output: 'base64'
+  })
+  decryptData = sm2.doDecrypt(encryptData, privateKey, {mode: cipherMode}) // 解密结果
+
+  console.log('密文hex: ', encryptData);
+  console.log('密文base64: ', encryptDataBase64);
+  console.log('明文: ', decryptData);
+
+</script>
+</body>
+</html>

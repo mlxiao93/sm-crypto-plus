@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sm3 sm-crypto-plus</title>
+  <script src="../dist/index.umd.js"></script>
+</head>
+<body>
+<script>
+console.log('~~~~~~~~~~~~~~~~~sm3~~~~~~~~~~');
+sm3 = SMCryptoPro.sm3
+plaintext = 'hello world! 我是 xiaomaolin.';
+console.log(sm3(plaintext, {
+  key: [1,2,3,4,5]
+}));
+console.log(sm3(plaintext));
+console.log(sm3(plaintext, { output: 'base64' }));
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sm-crypto-plus</title>
+  <script src="../dist/index.umd.js"></script>
+</head>
+<body>
+<script>
+console.log('~~~~~~~~~~~~~~~~~sm2~~~~~~~~~~');
+sm2 = SMCryptoPro.sm2
+hexToBase64 = SMCryptoPro.hexToBase64
+keypair = sm2.generateKeyPairHex()
+
+
+publicKey = keypair.publicKey // 公钥
+privateKey = keypair.privateKey // 私钥
+
+console.log('publicKey: ', publicKey, hexToBase64(publicKey));
+console.log('privateKey: ', privateKey, hexToBase64(privateKey));
+
+// 默认生成公钥 130 位太长，可以压缩公钥到 66 位
+compressedPublicKey = sm2.compressPublicKeyHex(publicKey) // compressedPublicKey 和 publicKey 等价
+sm2.comparePublicKeyHex(publicKey, compressedPublicKey) // 判断公钥是否等价
+
+// 自定义随机数，参数会直接透传给 jsbn 库的 BigInteger 构造器
+// 注意：开发者使用自定义随机数，需要自行确保传入的随机数符合密码学安全
+keypair2 = sm2.generateKeyPairHex('123123123123123')
+// var keypair3 = sm2.generateKeyPairHex(256, SecureRandom)
+
+console.log(keypair2);
+// console.log(keypair3);
+
+console.log(sm2.verifyPublicKey(publicKey)); // 验证公钥
+console.log(sm2.verifyPublicKey(compressedPublicKey)); // 验证公钥
+
+cipherMode = 'c1c3c2';
+
+encryptData = sm2.doEncrypt("hello world! 我是 xiaomaolin.", publicKey, {mode: cipherMode}) // 加密结果
+const encryptDataBase64 = sm2.doEncrypt("hello world! 我是 xiaomaolin.", publicKey, {
+  mode: cipherMode,
+  output: 'base64'
+})
+decryptData = sm2.doDecrypt(encryptData, privateKey, {mode: cipherMode}) // 解密结果
+
+console.log('密文hex: ', encryptData);
+console.log('密文base64: ', encryptDataBase64);
+console.log('明文: ', decryptData);
+
+</script>
+<script>
+console.log('~~~~~~~~~~~~~~~~~sm2签名验证~~~~~~~~~~');
+msg = 'hello world! 我是 xiaomaolin.';
+
+// 纯签名 + 生成椭圆曲线点
+sigValueHex = sm2.doSignature(msg, privateKey) // 签名
+verifyResult = sm2.doVerifySignature(msg, sigValueHex, publicKey) // 验签结果
+
+// 纯签名
+sigValueHex2 = sm2.doSignature(msg, privateKey, {
+  pointPool: [sm2.getPoint(), sm2.getPoint(), sm2.getPoint(), sm2.getPoint()], // 传入事先已生成好的椭圆曲线点，可加快签名速度
+}) // 签名
+verifyResult2 = sm2.doVerifySignature(msg, sigValueHex2, publicKey) // 验签结果
+
+// 纯签名 + 生成椭圆曲线点 + der编解码
+sigValueHex3 = sm2.doSignature(msg, privateKey, {
+  der: true,
+}) // 签名
+verifyResult3 = sm2.doVerifySignature(msg, sigValueHex3, publicKey, {
+  der: true,
+}) // 验签结果
+
+// 纯签名 + 生成椭圆曲线点 + sm3杂凑
+sigValueHex4 = sm2.doSignature(msg, privateKey, {
+  hash: true,
+}) // 签名
+verifyResult4 = sm2.doVerifySignature(msg, sigValueHex4, publicKey, {
+  hash: true,
+}) // 验签结果
+
+// 纯签名 + 生成椭圆曲线点 + sm3杂凑（不做公钥推导）
+sigValueHex5 = sm2.doSignature(msg, privateKey, {
+  hash: true,
+  publicKey: publicKey, // 传入公钥的话，可以去掉sm3杂凑中推导公钥的过程，速度会比纯签名 + 生成椭圆曲线点 + sm3杂凑快
+})
+verifyResult5 = sm2.doVerifySignature(msg, sigValueHex5, publicKey, {
+  hash: true,
+  publicKey: publicKey,
+})
+
+msgString = 'sfafefaefaefaefaseawfa3a3afsdfas'
+
+// 纯签名 + 生成椭圆曲线点 + sm3杂凑 + 不做公钥推 + 添加 userId（长度小于 8192）
+// 默认 userId 值为 1234567812345678
+sigValueHex6 = sm2.doSignature(msgString, privateKey, {
+  hash: true,
+  publicKey: publicKey,
+  userId: 'testUserId',
+})
+verifyResult6 = sm2.doVerifySignature(msgString, sigValueHex6, publicKey, {
+  hash: true,
+  userId: 'testUserId',
+})
+sm2.getPoint() // 获取一个椭圆曲线点，可在sm2签名时传入
+sm2.getPublicKeyFromPrivateKey(privateKey) // 根据私钥获取公钥
+</script>
+<script>
+console.log('~~~~~~~~~~~~~~~~~sm3~~~~~~~~~~');
+sm3 = SMCryptoPro.sm3
+hashData = sm3('abc') // 杂凑
+
+console.log(hashData);
+
+// hmac
+hashData = sm3('abc', {
+  key: 'daac25c1512fe50f79b0e4526b93f5c0e1460cef40b6dd44af13caec62e8c60e0d885f3c6d6fb51e530889e6fd4ac743a6d332e68a0f2a3923f42585dceb93e9', // 要求为 16 进制串或字节数组
+})
+</script>
+<script>
+console.log('~~~~~~~~~~~~~~~~~sm4~~~~~~~~~~');
+sm4 = SMCryptoPro.sm4;
+
+msg = 'hello world! 我是 xiaomaolin.' // 可以为 utf8 串或字节数组
+key = '0123456789abcdeffedcba9876543210' // 可以为 16 进制串或字节数组，要求为 128 比特
+iv = 'fedcba98765432100123456789abcdef'
+
+encryptData = sm4.encrypt(msg, key, {mode: 'cbc', iv: iv}) // 加密，cbc 模式
+
+console.log(encryptData)
+
+decryptData = sm4.decrypt(encryptData, key, {mode: 'cbc', iv: iv}) // 解密，cbc 模式
+
+console.log(decryptData);
+
+</script>
+</body>
+</html>
