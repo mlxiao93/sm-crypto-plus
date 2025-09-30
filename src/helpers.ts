@@ -173,12 +173,135 @@ function isBase64Like(str: string, options: { urlSafe?: boolean } = {}): boolean
   }
 
   // 检查字符串长度是否为 4 的倍数
-  if (str.length % 4 !== 0) {
-    return false;
+  return str.length % 4 === 0;
+
+
+}
+
+/**
+ * UTF-8 字符串 → 10 进制字节数组
+ */
+export function utf8ToArray(str: string): number[] {
+
+  if (typeof Buffer !== 'undefined') {
+    // Node.js
+    return Array.prototype.slice.call(Buffer.from(str, 'utf8'));
   }
 
-  return true;
+  if (typeof TextEncoder !== 'undefined') {
+    return Array.prototype.slice.call(new TextEncoder().encode(str));
+  }
+
+  /** 兼容IE11 */
+  const bytes: number[] = [];
+  for (let i = 0; i < str.length; i++) {
+    let c = str.charCodeAt(i);
+
+    if (c < 128) {
+      bytes.push(c);
+    } else if (c < 2048) {
+      bytes.push((c >> 6) | 192);
+      bytes.push((c & 63) | 128);
+    } else if (c >= 0xD800 && c < 0xDC00) {
+      // 处理 Unicode 代理对（如表情符号）
+      const high = c;
+      const low = str.charCodeAt(++i);
+      c = ((high & 0x3FF) << 10) | (low & 0x3FF);
+      bytes.push((c >> 18) | 240);
+      bytes.push(((c >> 12) & 63) | 128);
+      bytes.push(((c >> 6) & 63) | 128);
+      bytes.push((c & 63) | 128);
+    } else {
+      bytes.push((c >> 12) | 224);
+      bytes.push(((c >> 6) & 63) | 128);
+      bytes.push((c & 63) | 128);
+    }
+  }
+
+  return bytes;
 }
+
+/**
+ * 10 进制字节数组 → UTF-8 字符串
+ */
+export function arrayToUtf8(arr: number[]): string {
+  if (!Array.isArray(arr) || arr.some(v => v < 0 || v > 255))
+    throw new TypeError('Invalid byte array');
+
+  if (typeof Buffer !== 'undefined') {
+    // Node.js
+    return Buffer.from(new Uint8Array(arr)).toString('utf8');
+  }
+
+  if (typeof TextDecoder !== 'undefined') {
+    return new TextDecoder().decode(new Uint8Array(arr));
+  }
+
+  /** 兼容IE11 */
+  const chars: string[] = [];
+  let i = 0;
+
+  while (i < arr.length) {
+    let c = arr[i++];
+
+    if (c < 128) {
+      chars.push(String.fromCharCode(c));
+    } else if (c > 191 && c < 224) {
+      chars.push(String.fromCharCode(((c & 31) << 6) | (arr[i++] & 63)));
+    } else if (c > 223 && c < 240) {
+      chars.push(String.fromCharCode(
+        ((c & 15) << 12) | ((arr[i++] & 63) << 6) | (arr[i++] & 63)
+      ));
+    } else {
+      chars.push(String.fromCharCode(
+        ((c & 7) << 18) | ((arr[i++] & 63) << 12) | ((arr[i++] & 63) << 6) | (arr[i++] & 63)
+      ));
+    }
+  }
+
+  return chars.join('');
+}
+
+export function utf8ToHex(str: string): string {
+  return arrayToHex(utf8ToArray(str));
+}
+
+export function hexToUtf8(str: string): string {
+  return arrayToUtf8(hexToArray(str));
+}
+
+/**
+ * UTF-8 字符串 → Base64
+ */
+export function utf8ToBase64(str: string): string {
+  if (typeof Buffer !== 'undefined') {
+    // Node.js
+    return Buffer.from(str, 'utf8').toString('base64');
+  }
+
+  const utf8 = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p) =>
+    String.fromCharCode(parseInt(p, 16))
+  );
+  return btoa(utf8);
+}
+
+/**
+ * Base64 → UTF-8 字符串
+ */
+export function base64ToUtf8(b64: string): string {
+  if (typeof Buffer !== 'undefined') {
+    // Node.js
+    return Buffer.from(b64, 'base64').toString('utf8');
+  }
+
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return decodeURIComponent(
+    Array.prototype.map.call(bytes, (b: number) => '%' + padHex(b)).join('')
+  );
+}
+
 
 /**
  * 十进制数组、base64转hex

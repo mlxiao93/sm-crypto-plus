@@ -8,8 +8,16 @@
 </head>
 <body>
 <script>
-  generateKey = SMCryptoPro.generateKey
+  generateKey = SMCryptoPro.generateKey;
+  utf8ToArray = SMCryptoPro.utf8ToArray;
+  arrayToUtf8 = SMCryptoPro.arrayToUtf8;
+  utf8ToBase64 = SMCryptoPro.utf8ToBase64;
+  base64ToUtf8 = SMCryptoPro.base64ToUtf8;
   console.log(generateKey());
+  console.log(utf8ToArray('abc你好'));
+  console.log(arrayToUtf8([97, 98, 99, 228, 189, 160, 229, 165, 189]));
+  console.log(utf8ToBase64('hello world! 我是 xiaomaolin.'));
+  console.log(base64ToUtf8('aGVsbG8gd29ybGQhIOaIkeaYryB4aWFvbWFvbGluLg=='));
 </script>
 </body>
 </html>

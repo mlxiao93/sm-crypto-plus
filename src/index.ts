@@ -14,7 +14,13 @@ export {
   generateKey,
   generateKeyServerSide,
   base64ToArray,
-  arrayToBase64
+  arrayToBase64,
+  arrayToUtf8,
+  utf8ToArray,
+  hexToUtf8,
+  utf8ToHex,
+  utf8ToBase64,
+  base64ToUtf8,
 } from './helpers';
 
 import {

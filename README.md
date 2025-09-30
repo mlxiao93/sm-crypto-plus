@@ -214,24 +214,6 @@ decrypt(ciphertextCbc, key, { mode: 'cbc', iv})
 
 ```ts
 /**
- * 随机生成密钥
- * @param byteCount 字节数，默认16
- */
-export declare function generateKey(byteCount?: number): {
-    hex: string;
-    base64: string;
-    array: number[];
-  };
-/**
- * 随机生成密钥(node适用)
- * @param byteCount 字节数，默认16
- */
-export declare function generateKeyServerSide(byteCount?: number): {
-  hex: string;
-  base64: string;
-  array: number[];
-};
-/**
  * 将十六进制字符串转换为十进制数组 (number[])
  * @param hex - 十六进制字符串，可以包含或不包含 "0x" 前缀
  * @returns number[] - 每个元素代表一个字节 (0-255)
@@ -275,8 +257,44 @@ export declare function arrayToBase64(array: number[]): string;
  */
 export declare function isHexString(str: string): boolean;
 /**
+ * UTF-8 字符串 → 10 进制字节数组
+ */
+export declare function utf8ToArray(str: string): number[];
+/**
+ * 10 进制字节数组 → UTF-8 字符串
+ */
+export declare function arrayToUtf8(arr: number[]): string;
+export declare function utf8ToHex(str: string): string;
+export declare function hexToUtf8(str: string): string;
+/**
+ * UTF-8 字符串 → Base64
+ */
+export declare function utf8ToBase64(str: string): string;
+/**
+ * Base64 → UTF-8 字符串
+ */
+export declare function base64ToUtf8(b64: string): string;
+/**
  * 十进制数组、base64转hex
  * @param input 十进制数组或base64串
  */
 export declare function toHex(input: string | number[]): string;
+/**
+ * 随机生成密钥
+ * @param byteCount 字节数，默认16
+ */
+export declare function generateKey(byteCount?: number): {
+  hex: string;
+  base64: string;
+  array: number[];
+};
+/**
+ * 随机生成密钥(node适用)
+ * @param byteCount 字节数，默认16
+ */
+export declare function generateKeyServerSide(byteCount?: number): {
+  hex: string;
+  base64: string;
+  array: number[];
+};
 ```

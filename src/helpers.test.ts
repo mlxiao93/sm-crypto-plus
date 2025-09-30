@@ -3,7 +3,12 @@ import {
   base64ToHex,
   hexToArray,
   arrayToHex,
-  toHex, generateKeyServerSide, isHexString,
+  toHex,
+  generateKeyServerSide,
+  utf8ToArray,
+  arrayToUtf8,
+  utf8ToBase64,
+  base64ToUtf8,
 } from './helpers';
 import { isStandardBase64 } from './index.test';
 
@@ -53,6 +58,30 @@ describe('helper', () => {
       `000102030405060708090a0b0c0d0e0f10`
     );
   })
+
+  test('utf8ToArray', () => {
+    expect(utf8ToArray(`abc你好`)).toEqual(
+      [97, 98, 99, 228, 189, 160, 229, 165, 189]
+    )
+  });
+
+  test('arrayToUtf8', () => {
+    expect(arrayToUtf8(
+      [97, 98, 99, 228, 189, 160, 229, 165, 189]
+    )).toEqual(
+      `abc你好`
+    )
+  });
+
+  test('utf8ToBase64', () => {
+    expect(utf8ToBase64(`hello world! 我是 xiaomaolin.`))
+      .toBe(`aGVsbG8gd29ybGQhIOaIkeaYryB4aWFvbWFvbGluLg==`)
+  });
+
+  test('base64ToUtf8', () => {
+    expect(base64ToUtf8(`aGVsbG8gd29ybGQhIOaIkeaYryB4aWFvbWFvbGluLg==`))
+      .toBe(`hello world! 我是 xiaomaolin.`)
+  });
 
   test('toHex', () => {
     expect(toHex(
