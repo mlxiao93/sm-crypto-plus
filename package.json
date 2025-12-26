@@ -1,6 +1,6 @@
 {
   "name": "sm-crypto-plus",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "国密算法sm2、sm3、sm4的TS实现",
   "type": "module",
   "repository": {

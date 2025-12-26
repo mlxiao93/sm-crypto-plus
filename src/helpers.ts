@@ -319,15 +319,31 @@ export function toHex(input: string | number[], encode: TextEncode = 'auto'): st
     return utf8ToHex(input as string);
   }
 
-  if (encode === 'array' || Array.isArray(input)) {
+  if (encode === 'array') {
     return arrayToHex(input as number[]);
   }
 
-  if (encode === 'hex' || isHexString(input)) {
+  if (encode === 'hex') {
+    return input as string;
+  }
+
+  if (encode === 'base64') {
+    try {
+      return base64ToHex(input as string);
+    } catch (e) {
+      return input as string;
+    }
+  }
+
+  if (Array.isArray(input)) {
+    return arrayToHex(input as number[]);
+  }
+
+  if (isHexString(input)) {
     return input;
   }
 
-  if (encode === 'base64' || isBase64Like(input)) {
+  if (isBase64Like(input)) {
     try {
       return base64ToHex(input);
     } catch (e) {}
