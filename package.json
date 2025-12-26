@@ -1,6 +1,6 @@
 {
   "name": "sm-crypto-plus",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "国密算法sm2、sm3、sm4的TS实现",
   "type": "module",
   "repository": {
@@ -19,6 +19,7 @@
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "browser": "./dist/index.umd.js",
   "sideEffects": false,
   "exports": {
@@ -46,6 +47,14 @@
       "types": "./dist/helpers.d.ts",
       "import": "./dist/helpers.js",
       "require": "./dist/helpers.cjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*.d.ts",
+        "./dist/*/index.d.ts"
+      ]
     }
   },
   "engines": {
