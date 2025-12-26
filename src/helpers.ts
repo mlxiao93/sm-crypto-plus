@@ -139,6 +139,10 @@ export function isHexString(str: string): boolean {
     return false;
   }
 
+  if (/^0x/i.test(str)) {
+    return true;
+  }
+
   const cleanedHex = str.replace(/^0x/i, '');
 
   // 检查长度是否为偶数
@@ -302,22 +306,28 @@ export function base64ToUtf8(b64: string): string {
   );
 }
 
+export type TextEncode = 'auto' | 'utf8' | 'hex' | 'base64' | 'array';
+
 
 /**
  * 十进制数组、base64转hex
  * @param input 十进制数组或base64串
  */
-export function toHex(input: string | number[]): string {
+export function toHex(input: string | number[], encode: TextEncode = 'auto'): string {
 
-  if (Array.isArray(input)) {
-    return arrayToHex(input);
+  if (encode === 'utf8') {
+    return utf8ToHex(input as string);
   }
 
-  if (isHexString(input)) {
+  if (encode === 'array' || Array.isArray(input)) {
+    return arrayToHex(input as number[]);
+  }
+
+  if (encode === 'hex' || isHexString(input)) {
     return input;
   }
 
-  if (isBase64Like(input)) {
+  if (encode === 'base64' || isBase64Like(input)) {
     try {
       return base64ToHex(input);
     } catch (e) {}

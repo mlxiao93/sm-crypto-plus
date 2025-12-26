@@ -2,7 +2,7 @@ import {
   doEncrypt as legacyEncrypt,
   doDecrypt as legacyDecrypt,
 } from './libs/sm-crypto/sm2';
-import { hexToBase64, toHex } from './helpers';
+import { hexToBase64, TextEncode, toHex } from './helpers';
 
 export {
   generateKeyPairHex,
@@ -20,14 +20,16 @@ export function encrypt(
   input: string | number[],
   publicKey: string | number[],
   option: {
-    mode?: 'c1c3c2' | 'c1c2c3'
+    mode?: 'c1c3c2' | 'c1c2c3';
+    keyEncode?: TextEncode;
     output?: 'hex' | 'base64';
     prefix04?: boolean;
   } = {}
 ): string {
-  const publicKeyHex = toHex(publicKey);
+  const { output = 'hex', prefix04 = true, mode = 'c1c3c2', keyEncode } = option;
 
-  const { output = 'hex', prefix04 = true, mode = 'c1c3c2' } = option;
+  const publicKeyHex = toHex(publicKey, keyEncode);
+
 
   let ciphertextHex = legacyEncrypt(input, publicKeyHex, mode === 'c1c2c3' ? 0 : 1);
 
@@ -46,14 +48,16 @@ export function decrypt(
   input: string | number[],
   privateKey: string | number[],
   option: {
-    mode?: 'c1c3c2' | 'c1c2c3'
+    mode?: 'c1c3c2' | 'c1c2c3';
+    keyEncode?: TextEncode;
+    inputEncode?: TextEncode;
     prefix04?: boolean;
   } = {}
 ): string {
-  const { prefix04 = true, mode = 'c1c3c2' } = option;
+  const { prefix04 = true, mode = 'c1c3c2', inputEncode, keyEncode } = option;
 
-  let ciphertextHex = toHex(input);
-  const privateKeyHex = toHex(privateKey);
+  let ciphertextHex = toHex(input, inputEncode);
+  const privateKeyHex = toHex(privateKey, keyEncode);
 
   if (prefix04) {
     ciphertextHex = ciphertextHex.replace(/^04/, '');
